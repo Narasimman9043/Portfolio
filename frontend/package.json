@@ -2,10 +2,13 @@
   "name": "portfolio-frontend",
   "version": "1.0.0",
   "type": "module",
+  "homepage": "https://github.com/Narasimman9043/Portfolio.git",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.0",

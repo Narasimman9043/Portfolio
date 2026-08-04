@@ -56,18 +56,41 @@ export default function ResumeSection({ hook }) {
               : <p className="text-sm text-slate-400 mb-6">No resume uploaded yet.</p>
             }
             <div className="flex flex-wrap justify-center gap-4">
-              {resume?.resume_file && (
-                <a href={resume.resume_file} target="_blank" rel="noopener noreferrer" className="btn-primary">
+              {/* Download button — always visible; disabled when no file uploaded */}
+              {resume?.resume_file ? (
+                <a
+                  href={resume.resume_file}
+                  download={resume.file_name || 'resume.pdf'}
+                  className="btn-primary"
+                  aria-label="Download resume PDF"
+                >
                   <i className="fa-solid fa-download" /> Download Resume
                 </a>
+              ) : (
+                <button
+                  disabled
+                  className="btn-primary opacity-40 cursor-not-allowed"
+                  title="No resume uploaded yet"
+                  aria-disabled="true"
+                >
+                  <i className="fa-solid fa-download" /> Download Resume
+                </button>
               )}
+
               {isAdmin && (
                 <>
                   <button onClick={() => inputRef.current?.click()} disabled={uploading} className="btn-outline disabled:opacity-60">
-                    {uploading ? <><i className="fa-solid fa-spinner animate-spin" /> Uploading…</> : <><i className="fa-solid fa-upload" /> Upload Resume (PDF)</>}
+                    {uploading
+                      ? <><i className="fa-solid fa-spinner animate-spin" /> Uploading…</>
+                      : <><i className="fa-solid fa-upload" /> {resume?.resume_file ? 'Replace PDF' : 'Upload Resume (PDF)'}</>
+                    }
                   </button>
                   {resume?.resume_file && (
-                    <button onClick={() => setConfirmDel(true)} className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-rose-400 border border-rose-500/40 hover:bg-rose-500/10 transition-colors">
+                    <button
+                      onClick={() => setConfirmDel(true)}
+                      className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-rose-400 border border-rose-500/40 hover:bg-rose-500/10 transition-colors"
+                      aria-label="Delete resume"
+                    >
                       <i className="fa-solid fa-trash" /> Delete
                     </button>
                   )}
