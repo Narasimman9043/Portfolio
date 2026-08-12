@@ -1,35 +1,39 @@
-# Portfolio CMS — Node.js + Express + Supabase + React
+# Portfolio CMS — React + Node.js + Supabase
 
-A fully dynamic portfolio website. All data is stored in Supabase PostgreSQL and served via a Node/Express REST API. The React frontend fetches everything from the backend — **zero localStorage, zero hardcoded data**.
+A fully dynamic portfolio website. All data is stored in Supabase PostgreSQL. The React frontend connects directly via Supabase JS client — **zero localStorage, zero hardcoded data**.
 
 ---
 
 ## Project Structure
 
 ```
-portfolio-crud/
+portfolio/
 ├── backend/
+│   ├── api/
+│   │   └── index.js        Vercel serverless entry point
 │   ├── src/
 │   │   ├── config/         supabase.js
 │   │   ├── controllers/    one file per resource
-│   │   ├── middleware/      auth.js, rateLimiter.js, validate.js
-│   │   ├── routes/          one file per resource
-│   │   ├── utils/           supabaseStorage.js
-│   │   └── server.js
+│   │   ├── middleware/     auth.js, rateLimiter.js, validate.js
+│   │   ├── routes/         one file per resource
+│   │   ├── utils/          supabaseStorage.js
+│   │   └── server.js       Express app (local dev)
 │   ├── .env.example
 │   └── package.json
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── api/            axios.js, index.js
 │   │   ├── components/
 │   │   │   ├── sections/   ProfileSection, ResumeSection, SkillsSection,
 │   │   │   │               EducationSection, ExperienceSection, ProjectsSection,
-│   │   │   │               CertificatesSection, ContactSection, Nav, Footer
+│   │   │   │               CertificatesSection, AchievementsSection,
+│   │   │   │               ContactSection, Nav, Footer
 │   │   │   └── ui/         index.jsx (Modal, Field, Input, ImageDrop…),
 │   │   │                   AdminPasswordDialog.jsx
 │   │   ├── context/        AuthContext.jsx
-│   │   ├── hooks/          usePortfolioData.js
+│   │   ├── hooks/          usePortfolioData.js + per-resource hooks
+│   │   ├── services/       per-resource Supabase service files
+│   │   ├── lib/            supabase.js
 │   │   ├── pages/          AdminMessages.jsx
 │   │   ├── App.jsx
 │   │   ├── main.jsx
@@ -39,8 +43,10 @@ portfolio-crud/
 │   └── vite.config.js
 │
 ├── database/
-│   └── schema.sql          Complete Supabase schema + RLS policies + seed data
+│   └── schema.sql          Supabase schema + RLS policies
 │
+├── vercel.json             Vercel deployment config
+├── render.yaml             Render deployment config
 └── README.md
 ```
 
@@ -51,127 +57,81 @@ portfolio-crud/
 ### 1. Supabase Setup
 
 1. Go to [supabase.com](https://supabase.com) → New project.
-2. Open **SQL Editor** → paste the entire contents of `database/schema.sql` → Run.
-3. Go to **Authentication → Users** → Add a new user with your admin email/password.
-4. Go to **Storage** → Create two public buckets:
-   - `portfolio-images`
-   - `portfolio-resume`
-5. Copy your **Project URL**, **anon key**, and **service_role key** from Project Settings → API.
+2. Open **SQL Editor** → paste contents of `database/schema.sql` → Run.
+3. Go to **Authentication → Users** → Add admin user.
+4. Go to **Storage** → Create two public buckets: `portfolio-images`, `portfolio-resume`.
+5. Copy **Project URL**, **anon key**, **service_role key** from Project Settings → API.
 
-### 2. Backend
+### 2. Backend (local)
 
 ```bash
 cd backend
 cp .env.example .env
-# Fill in .env with your Supabase keys, JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD
+# Fill .env with Supabase keys, JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD
 npm install
-npm run dev
-# Runs on http://localhost:5000
+npm run dev          # http://localhost:5000
 ```
 
-### 3. Frontend
+### 3. Frontend (local)
 
 ```bash
 cd frontend
 cp .env.example .env
+# VITE_SUPABASE_URL=...
+# VITE_SUPABASE_ANON_KEY=...
 # VITE_API_URL=http://localhost:5000
+# VITE_ADMIN_EMAIL=...
 npm install
-npm run dev
-# Runs on http://localhost:5173
+npm run dev          # http://localhost:5173
 ```
 
 ---
 
-## API Reference
+## Deployment → Vercel
 
-| Method | Route                          | Auth    | Description               |
-|--------|--------------------------------|---------|---------------------------|
-| POST   | /api/auth/login                | Public  | Login → returns JWT       |
-| POST   | /api/auth/logout               | Public  | Logout (client-side)      |
-| GET    | /api/auth/me                   | Admin   | Get current user          |
-| GET    | /api/profile                   | Public  | Get profile               |
-| PUT    | /api/profile                   | Admin   | Update profile            |
-| POST   | /api/profile/image             | Admin   | Upload profile photo      |
-| GET    | /api/skills                    | Public  | List skills               |
-| POST   | /api/skills                    | Admin   | Create skill              |
-| PUT    | /api/skills/reorder            | Admin   | Reorder skills            |
-| PUT    | /api/skills/:id                | Admin   | Update skill              |
-| DELETE | /api/skills/:id                | Admin   | Delete skill              |
-| GET    | /api/education                 | Public  | List education            |
-| POST   | /api/education                 | Admin   | Create education          |
-| PUT    | /api/education/:id             | Admin   | Update education          |
-| DELETE | /api/education/:id             | Admin   | Delete education          |
-| GET    | /api/experience                | Public  | List experience           |
-| POST   | /api/experience                | Admin   | Create experience         |
-| PUT    | /api/experience/:id            | Admin   | Update experience         |
-| DELETE | /api/experience/:id            | Admin   | Delete experience         |
-| POST   | /api/experience/:id/logo       | Admin   | Upload company logo       |
-| GET    | /api/projects                  | Public  | List projects             |
-| POST   | /api/projects                  | Admin   | Create project            |
-| PUT    | /api/projects/:id              | Admin   | Update project            |
-| DELETE | /api/projects/:id              | Admin   | Delete project            |
-| POST   | /api/projects/:id/image        | Admin   | Upload project image      |
-| GET    | /api/certificates              | Public  | List certificates         |
-| POST   | /api/certificates              | Admin   | Create certificate        |
-| PUT    | /api/certificates/:id          | Admin   | Update certificate        |
-| DELETE | /api/certificates/:id          | Admin   | Delete certificate        |
-| POST   | /api/certificates/:id/image    | Admin   | Upload certificate image  |
-| GET    | /api/resume                    | Public  | Get resume info           |
-| POST   | /api/resume                    | Admin   | Upload resume PDF         |
-| DELETE | /api/resume                    | Admin   | Delete resume             |
-| POST   | /api/contact                   | Public  | Submit contact form       |
-| GET    | /api/contact                   | Admin   | View all messages         |
-| PATCH  | /api/contact/:id/read          | Admin   | Mark message as read      |
-| DELETE | /api/contact/:id               | Admin   | Delete message            |
+Both frontend and backend deploy together from the root using `vercel.json`.
 
----
+### Steps
 
-## Deployment
+1. Push this repo to GitHub.
+2. Go to [vercel.com](https://vercel.com) → **New Project** → import repo.
+3. **Root Directory** → leave blank (vercel.json is at root).
+4. Add Environment Variables:
 
-### Backend → Render
+| Key | Value |
+|-----|-------|
+| `VITE_SUPABASE_URL` | your Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | your Supabase anon key |
+| `VITE_API_URL` | your Vercel deployment URL |
+| `VITE_ADMIN_EMAIL` | admin email |
+| `SUPABASE_URL` | your Supabase project URL |
+| `SUPABASE_ANON_KEY` | your Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | your service role key |
+| `JWT_SECRET` | any strong random string |
+| `ALLOWED_ORIGINS` | your Vercel URL |
 
-1. Push the `backend/` folder to a GitHub repo.
-2. Go to [render.com](https://render.com) → **New Web Service** → connect your repo.
-3. Build command: `npm install`
-4. Start command: `npm start`
-5. Add all environment variables from `.env.example` in the Render dashboard.
-6. Copy the live URL (e.g. `https://portfolio-api.onrender.com`).
-
-### Frontend → Netlify
-
-1. Push the `frontend/` folder to GitHub.
-2. Go to [netlify.com](https://netlify.com) → **Add new site** → connect repo.
-3. Build command: `npm run build`
-4. Publish directory: `dist`
-5. Add environment variable: `VITE_API_URL=https://portfolio-api.onrender.com`
-6. Add to Render's `ALLOWED_ORIGINS`: your Netlify URL.
-
-### Database → Supabase (already hosted)
-
-No deployment needed — Supabase is cloud-native.
+5. Click **Deploy**. ✅
 
 ---
 
 ## Security Features
 
-- JWT authentication with configurable expiry
-- bcrypt password hashing (via Supabase Auth)
-- Rate limiting: 100 req/15 min global, 10 req/15 min auth, 5 req/hour contact
+- SHA-256 password verification (client-side, never stored)
+- Supabase Auth + JWT for write operations
+- Row Level Security (RLS) on all Supabase tables
+- Rate limiting: 100 req/15 min global
 - Helmet.js security headers
 - CORS restricted to allowed origins
 - XSS sanitisation on contact form
-- Row Level Security (RLS) on all Supabase tables
-- Input validation via express-validator
+- Admin auto-logout after 15 min inactivity
 
 ---
 
 ## Admin Workflow
 
-1. Open your portfolio on any device.
+1. Open your portfolio.
 2. Click **Admin: OFF** button (bottom-left).
-3. Enter your admin email + password.
-4. A JWT is issued and stored in `localStorage`.
-5. Edit buttons appear on every section.
-6. Changes save to Supabase instantly — visible on all devices immediately.
-7. Admin auto-logs out after 15 min of inactivity.
-8. Click the envelope icon in the footer to view contact form submissions.
+3. Enter admin password → verified via SHA-256.
+4. Edit buttons appear on every section.
+5. Changes save to Supabase instantly — visible everywhere.
+6. Auto-logout after 15 min inactivity.

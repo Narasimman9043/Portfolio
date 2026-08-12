@@ -3,21 +3,15 @@
   "version": "1.0.0",
   "description": "Full-stack portfolio CMS — Node.js + Express + Supabase + React + Vite",
   "private": true,
-  "homepage": "https://github.com/Narasimman9043/Portfolio.git",
   "scripts": {
-    "dev:backend": "cd backend && npm run dev",
+    "dev:backend":  "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "install:all": "cd backend && npm install && cd ../frontend && npm install",
-    "build": "cd frontend && npm run build",
-    "predeploy": "npm run build",
-    "deploy": "npm --prefix frontend run deploy",
-    "start": "cd backend && npm start"
+    "install:all":  "cd backend && npm install && cd ../frontend && npm install",
+    "build":        "cd frontend && npm run build",
+    "start":        "cd backend && npm start"
   },
   "engines": {
     "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-  },
-  "devDependencies": {
-    "gh-pages": "^6.3.0"
+    "npm":  ">=9.0.0"
   }
 }
