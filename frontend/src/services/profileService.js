@@ -18,8 +18,9 @@ export async function updateProfile(id, fields) {
     .update({ ...fields, updated_at: new Date().toISOString() })
     .eq('id', id)
     .select()
-    .single();
+    .maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error('Update failed — check Supabase RLS policies allow writes.');
   return data;
 }
 

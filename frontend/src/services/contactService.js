@@ -4,7 +4,7 @@ const TABLE = 'contact_messages';
 
 export async function submitContact(fields) {
   const { data, error } = await supabase
-    .from(TABLE).insert(fields).select().single();
+    .from(TABLE).insert(fields).select().maybeSingle();
   if (error) throw error;
   return data;
 }
@@ -18,7 +18,7 @@ export async function getMessages() {
 
 export async function markRead(id) {
   const { data, error } = await supabase
-    .from(TABLE).update({ is_read: true }).eq('id', id).select().single();
+    .from(TABLE).update({ is_read: true }).eq('id', id).select().maybeSingle();
   if (error) throw error;
   return data;
 }

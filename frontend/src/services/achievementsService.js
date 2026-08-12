@@ -11,15 +11,17 @@ export async function getAchievements() {
 
 export async function createAchievement(fields) {
   const { data, error } = await supabase
-    .from(TABLE).insert(fields).select().single();
+    .from(TABLE).insert(fields).select().maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error('Create failed — check Supabase RLS policies.');
   return data;
 }
 
 export async function updateAchievement(id, fields) {
   const { data, error } = await supabase
-    .from(TABLE).update(fields).eq('id', id).select().single();
+    .from(TABLE).update(fields).eq('id', id).select().maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error('Update failed — check Supabase RLS policies.');
   return data;
 }
 
